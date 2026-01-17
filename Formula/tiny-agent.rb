@@ -1,15 +1,15 @@
 class TinyAgent < Formula
   desc "A lightweight, extensible coding agent built in TypeScript"
   homepage "https://github.com/jellydn/tiny-coding-agent"
-  version "0.1.0"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/jellydn/tiny-coding-agent/releases/latest/download/tiny-agent-macos-arm64"
+      url "https://github.com/jellydn/tiny-coding-agent/releases/latest/download/tiny-agent-darwin-arm64"
     end
+
     on_intel do
-      url "https://github.com/jellydn/tiny-coding-agent/releases/latest/download/tiny-agent-macos-x64"
+      url "https://github.com/jellydn/tiny-coding-agent/releases/latest/download/tiny-agent-darwin-x64"
     end
   end
 
@@ -17,18 +17,28 @@ class TinyAgent < Formula
     on_arm do
       url "https://github.com/jellydn/tiny-coding-agent/releases/latest/download/tiny-agent-linux-arm64"
     end
+
     on_intel do
       url "https://github.com/jellydn/tiny-coding-agent/releases/latest/download/tiny-agent-linux-x64"
     end
   end
 
   def install
-    os = OS.mac? ? "macos" : "linux"
+    os = OS.mac? ? "darwin" : "linux"
     arch = Hardware::CPU.arm? ? "arm64" : "x64"
     bin.install "tiny-agent-#{os}-#{arch}" => "tiny-agent"
   end
 
+  def caveats
+    <<~EOS
+      tiny-agent has been installed to: #{bin}/tiny-agent
+
+      Add to your PATH:
+        echo 'export PATH="#{opt_bin}:$PATH"' >> ~/.zshrc && source ~/.zshrc
+    EOS
+  end
+
   test do
-    assert_match "tiny-agent", shell_output("#{bin}/tiny-agent --help 2>&1", 0)
+    system "#{bin}/tiny-agent", "--help"
   end
 end
