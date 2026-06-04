@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Authorize manual or dispatch trigger
+        id: auth
         if: github.event_name != 'schedule'
         env:
           ACTOR: ${{ github.actor }}
@@ -33,6 +34,7 @@ jobs:
           TAP_SECRET: ${{ secrets.FFF_RELEASE_BUMP_SECRET }}
         run: |
           set -euo pipefail
+          echo "skip=false" >> "$GITHUB_OUTPUT"
           allowed_actors="jellydn|dmtrKovalenko"
           if [[ "$EVENT" == "workflow_dispatch" ]]; then
             if [[ ! "$ACTOR" =~ ^(${allowed_actors})$ ]]; then
@@ -44,8 +46,9 @@ jobs:
           fi
           if [[ "$EVENT" == "repository_dispatch" ]]; then
             if [[ -z "$TAP_SECRET" ]]; then
-              echo "FFF_RELEASE_BUMP_SECRET not configured on tap" >&2
-              exit 1
+              echo "::notice::FFF_RELEASE_BUMP_SECRET not set on tap; ignoring dispatch (scheduled poll will sync)"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
             fi
             if [[ "$PAYLOAD_SECRET" != "$TAP_SECRET" ]]; then
               echo "repository_dispatch rejected: invalid bump_secret" >&2
@@ -57,10 +60,16 @@ jobs:
           echo "Unexpected event for authorization: $EVENT" >&2
           exit 1
 
+      - name: Skipped unconfigured dispatch
+        if: steps.auth.outputs.skip == 'true'
+        run: echo "No bump performed (dispatch ignored until FFF_RELEASE_BUMP_SECRET is configured on this repo)."
+
       - uses: actions/checkout@v5
+        if: github.event_name == 'schedule' || steps.auth.outputs.skip != 'true'
 
       - name: Resolve target version
         id: version
+        if: github.event_name == 'schedule' || steps.auth.outputs.skip != 'true'
         env:
           DISPATCH_VERSION: ${{ github.event.client_payload.version }}
           INPUT_VERSION: ${{ github.event.inputs.version }}
@@ -80,19 +89,24 @@ jobs:
 
       - name: Read current formula version
         id: current
+        if: github.event_name == 'schedule' || steps.auth.outputs.skip != 'true'
         run: |
           current="$(grep -E '^\s+v = ' Formula/fff-mcp.rb | sed -E 's/.*"(.*)".*/\1/')"
           echo "version=$current" >> "$GITHUB_OUTPUT"
           echo "Current formula version: $current"
 
       - name: Regenerate formula
-        if: steps.version.outputs.version != steps.current.outputs.version
+        if: >-
+          (github.event_name == 'schedule' || steps.auth.outputs.skip != 'true')
+          && steps.version.outputs.version != steps.current.outputs.version
         run: |
           chmod +x scripts/bump-fff-mcp.sh
           ./scripts/bump-fff-mcp.sh "${{ steps.version.outputs.version }}"
 
       - name: Commit and push
-        if: steps.version.outputs.version != steps.current.outputs.version
+        if: >-
+          (github.event_name == 'schedule' || steps.auth.outputs.skip != 'true')
+          && steps.version.outputs.version != steps.current.outputs.version
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -101,5 +115,7 @@ jobs:
           git push
 
       - name: Already up to date
-        if: steps.version.outputs.version == steps.current.outputs.version
+        if: >-
+          (github.event_name == 'schedule' || steps.auth.outputs.skip != 'true')
+          && steps.version.outputs.version == steps.current.outputs.version
         run: echo "Formula already at v${{ steps.version.outputs.version }}"

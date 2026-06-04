@@ -25,7 +25,7 @@ On **jellydn/homebrew-tap** (same value):
 | --- | --- |
 | `FFF_RELEASE_BUMP_SECRET` | Must match fff.nvim — rejects unauthorized dispatches |
 
-Without these, the 6-hour schedule still updates the formula.
+Without these, the 6-hour schedule still updates the formula. An upstream `repository_dispatch` without `FFF_RELEASE_BUMP_SECRET` on the tap **succeeds with a skip** (not a failure).
 
 ## Manual bump (jellydn / dmtrKovalenko)
 
