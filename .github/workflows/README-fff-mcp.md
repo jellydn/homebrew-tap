@@ -4,22 +4,33 @@
 
 ## Triggers
 
-| Trigger | When |
+| Trigger | Who can run | Behavior |
+| --- | --- | --- |
+| `schedule` | GitHub (no user) | Every 6h — polls latest stable release |
+| `repository_dispatch` | Official fff release workflow only | Instant bump; requires matching `FFF_RELEASE_BUMP_SECRET` |
+| `workflow_dispatch` | **jellydn** or **dmtrKovalenko** only | Manual bump; optional `version` input |
+
+## Secrets (instant bump from fff.nvim)
+
+On **dmtrKovalenko/fff.nvim** (maintainer repo):
+
+| Secret | Purpose |
 | --- | --- |
-| `schedule` | Every 6 hours — polls latest stable GitHub release |
-| `repository_dispatch` (`fff-release-published`) | Immediately after upstream release (optional) |
-| `workflow_dispatch` | Manual bump; optional `version` input |
+| `HOMEBREW_TAP_DISPATCH_TOKEN` | PAT with **Contents: write** on `jellydn/homebrew-tap` |
+| `FFF_RELEASE_BUMP_SECRET` | Shared random string; sent in dispatch payload |
 
-## Optional: instant bump from fff.nvim releases
+On **jellydn/homebrew-tap** (same value):
 
-Add a fine-grained PAT with **Contents: write** on `jellydn/homebrew-tap` as repo secret `HOMEBREW_TAP_DISPATCH_TOKEN` on `dmtrKovalenko/fff.nvim`, then merge the `bump-homebrew-tap` job in `.github/workflows/release.yaml`.
+| Secret | Purpose |
+| --- | --- |
+| `FFF_RELEASE_BUMP_SECRET` | Must match fff.nvim — rejects unauthorized dispatches |
 
-Without that secret, the 6-hour schedule still updates the tap.
+Without these, the 6-hour schedule still updates the formula.
 
-## Manual bump
+## Manual bump (jellydn / dmtrKovalenko)
 
 ```bash
 ./scripts/bump-fff-mcp.sh 0.9.2
 ```
 
-Or: **Actions → Bump fff-mcp formula → Run workflow**.
+Or: **Actions → Bump fff-mcp formula → Run workflow** (GitHub UI; actor must be jellydn or dmtrKovalenko).

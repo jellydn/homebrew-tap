@@ -24,6 +24,39 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
+      - name: Authorize manual or dispatch trigger
+        if: github.event_name != 'schedule'
+        env:
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+          PAYLOAD_SECRET: ${{ github.event.client_payload.bump_secret }}
+          TAP_SECRET: ${{ secrets.FFF_RELEASE_BUMP_SECRET }}
+        run: |
+          set -euo pipefail
+          allowed_actors="jellydn|dmtrKovalenko"
+          if [[ "$EVENT" == "workflow_dispatch" ]]; then
+            if [[ ! "$ACTOR" =~ ^(${allowed_actors})$ ]]; then
+              echo "workflow_dispatch denied for actor: $ACTOR (allowed: jellydn, dmtrKovalenko)" >&2
+              exit 1
+            fi
+            echo "workflow_dispatch authorized for $ACTOR"
+            exit 0
+          fi
+          if [[ "$EVENT" == "repository_dispatch" ]]; then
+            if [[ -z "$TAP_SECRET" ]]; then
+              echo "FFF_RELEASE_BUMP_SECRET not configured on tap" >&2
+              exit 1
+            fi
+            if [[ "$PAYLOAD_SECRET" != "$TAP_SECRET" ]]; then
+              echo "repository_dispatch rejected: invalid bump_secret" >&2
+              exit 1
+            fi
+            echo "repository_dispatch authorized"
+            exit 0
+          fi
+          echo "Unexpected event for authorization: $EVENT" >&2
+          exit 1
+
       - uses: actions/checkout@v5
 
       - name: Resolve target version
