@@ -1,0 +1,71 @@
+name: Bump fff-mcp formula
+
+on:
+  schedule:
+    # Catch releases even when upstream dispatch is not configured.
+    - cron: "30 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version without v (empty = latest stable)"
+        required: false
+        type: string
+  repository_dispatch:
+    types: [fff-release-published]
+
+permissions:
+  contents: write
+
+env:
+  FFF_RELEASE_REPO: dmtrKovalenko/fff.nvim
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve target version
+        id: version
+        env:
+          DISPATCH_VERSION: ${{ github.event.client_payload.version }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${DISPATCH_VERSION:-${INPUT_VERSION:-}}"
+          if [[ -z "$version" ]]; then
+            version="$(gh release list --repo "$FFF_RELEASE_REPO" --exclude-pre-releases --limit 1 --json tagName --jq '.[0].tagName' | sed 's/^v//')"
+          fi
+          version="${version#v}"
+          if [[ -z "$version" ]]; then
+            echo "No stable release found" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Target version: $version"
+
+      - name: Read current formula version
+        id: current
+        run: |
+          current="$(grep -E '^\s+v = ' Formula/fff-mcp.rb | sed -E 's/.*"(.*)".*/\1/')"
+          echo "version=$current" >> "$GITHUB_OUTPUT"
+          echo "Current formula version: $current"
+
+      - name: Regenerate formula
+        if: steps.version.outputs.version != steps.current.outputs.version
+        run: |
+          chmod +x scripts/bump-fff-mcp.sh
+          ./scripts/bump-fff-mcp.sh "${{ steps.version.outputs.version }}"
+
+      - name: Commit and push
+        if: steps.version.outputs.version != steps.current.outputs.version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/fff-mcp.rb
+          git commit -m "chore(fff-mcp): bump to v${{ steps.version.outputs.version }}"
+          git push
+
+      - name: Already up to date
+        if: steps.version.outputs.version == steps.current.outputs.version
+        run: echo "Formula already at v${{ steps.version.outputs.version }}"
