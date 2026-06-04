@@ -18,6 +18,7 @@ permissions:
 
 env:
   FFF_RELEASE_REPO: dmtrKovalenko/fff.nvim
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   bump:
