@@ -13,6 +13,10 @@ on:
   repository_dispatch:
     types: [fff-release-published]
 
+concurrency:
+  group: bump-fff-mcp-main
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -66,6 +70,15 @@ jobs:
 
       - uses: actions/checkout@v5
         if: github.event_name == 'schedule' || steps.auth.outputs.skip != 'true'
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Sync latest main
+        if: github.event_name == 'schedule' || steps.auth.outputs.skip != 'true'
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
 
       - name: Resolve target version
         id: version
@@ -108,11 +121,43 @@ jobs:
           (github.event_name == 'schedule' || steps.auth.outputs.skip != 'true')
           && steps.version.outputs.version != steps.current.outputs.version
         run: |
+          set -euo pipefail
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Formula/fff-mcp.rb
+
+          if git diff --cached --quiet; then
+            echo "No formula changes to commit"
+            exit 0
+          fi
+
           git commit -m "chore(fff-mcp): bump to v${{ steps.version.outputs.version }}"
-          git push
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            echo "Push rejected; rebasing onto latest main (attempt ${attempt}/3)"
+            git fetch origin main
+
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              remote_current="$(git show origin/main:Formula/fff-mcp.rb | grep -E '^\s+v = ' | sed -E 's/.*"(.*)".*/\1/')"
+
+              if [[ "$remote_current" == "${{ steps.version.outputs.version }}" ]]; then
+                echo "Remote formula is already at v${{ steps.version.outputs.version }}"
+                exit 0
+              fi
+
+              echo "Rebase failed and remote formula is at v${remote_current:-unknown}" >&2
+              exit 1
+            fi
+          done
+
+          echo "Failed to push after retries" >&2
+          exit 1
 
       - name: Already up to date
         if: >-
