@@ -4,29 +4,29 @@ class FffMcp < Formula
   license "MIT"
 
   # Homebrew reserves `version`; use a local for the release tag.
-  v = "0.10.3"
+  v = "0.10.4"
 
   on_macos do
     on_arm do
-      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.3/fff-mcp-aarch64-apple-darwin"
-      sha256 "8c52acf1e95540f02cf55579126ebf580cf48af15c76e1c90301c2c8c5acbcf9"
+      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.4/fff-mcp-aarch64-apple-darwin"
+      sha256 "f55ce2945cd30fd252a4b1e7d8674ff7ce41b104cc009a8d3d52d08bfccca2c0"
     end
 
     on_intel do
-      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.3/fff-mcp-x86_64-apple-darwin"
-      sha256 "f72c31c7f3355d37ec526ba56fd716341bd7186a15a399910cf3f2b46fef2099"
+      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.4/fff-mcp-x86_64-apple-darwin"
+      sha256 "821aedd5873292841f32d7584eb68fea085b248e5c970ff5d4f6dca790e9b18c"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.3/fff-mcp-aarch64-unknown-linux-gnu"
-      sha256 "ed2db5b7268c76619178594c31e400b0973668acfa42fe6b9a06a28ad459b667"
+      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.4/fff-mcp-aarch64-unknown-linux-gnu"
+      sha256 "3f266c0eded51a106badf1d47448a7f963762ccf3a12c5a4f06ee2b7adaf82d1"
     end
 
     on_intel do
-      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.3/fff-mcp-x86_64-unknown-linux-gnu"
-      sha256 "2692bc567f8c5609a179795f5ee95555d783a678acdad9c9883e6730654a057e"
+      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.4/fff-mcp-x86_64-unknown-linux-gnu"
+      sha256 "b5dd3182028c8a7bc34ee964cf2d30694f8121d2837a8516cf4a99bcfa822127"
     end
   end
 
