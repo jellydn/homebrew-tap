@@ -68,7 +68,7 @@ jobs:
         if: steps.auth.outputs.skip == 'true'
         run: echo "No bump performed (dispatch ignored until FFF_RELEASE_BUMP_SECRET is configured on this repo)."
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: github.event_name == 'schedule' || steps.auth.outputs.skip != 'true'
         with:
           ref: main
