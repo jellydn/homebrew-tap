@@ -8,8 +8,8 @@ class FffMcp < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/dmtrKovalenko/fff.nvim/releases/download/v0.10.6/fff-mcp-aarch64-apple-darwin"
-      sha256 "02e0f57f5b88fa698494f310d8005a0c34d5bda5a1fcd069520b35f8e2319892"
+      url "https://github.com/dmtrKovalenko/fff.nvim/archive/refs/tags/v0.11.0.tar.gz"
+      sha256 "6451acd63168af029e3afc28faf534a9389b941d01467027a0e5e7bac180b26d"
     end
 
     on_intel do
