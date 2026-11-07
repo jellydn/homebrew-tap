@@ -1,0 +1,38 @@
+name: Bump Shelf cask
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-shelf-main
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+      - name: Update from published release and verify downloaded digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/bump-shelf.py
+      - name: Commit cask update
+        run: |
+          git add Casks/shelf.rb
+          if git diff --cached --quiet; then
+            echo "Shelf is already up to date"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore(shelf): update cask from published release'
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
