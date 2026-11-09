@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "shelf" do
-  version "0.1.0"
-  sha256 "19b6f64ed50b8d5b3d51cebb2aa32294b8d798993b29f1192f79f270d7cd3523"
+  version "0.2.0"
+  sha256 "5a959681850c6331af51956cea6d8f1ac6bb5ad419f47421d551fb369d37a364"
 
   url "https://github.com/jellydn/shelf/releases/download/v#{version}/Shelf-#{version}-macos-arm64.dmg"
   name "Shelf"
