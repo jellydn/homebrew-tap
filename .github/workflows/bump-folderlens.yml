@@ -1,4 +1,4 @@
-name: Bump Shelf cask
+name: Bump FolderLens cask
 
 on:
   schedule:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: bump-shelf-main
+  group: bump-folderlens-main
   cancel-in-progress: false
 
 jobs:
@@ -22,17 +22,17 @@ jobs:
       - name: Update from published release and verify downloaded digest
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/bump-shelf.py
+        run: python3 scripts/bump-folderlens.py
       - name: Commit cask update
         run: |
-          git add Casks/shelf.rb
+          git add Casks/folderlens.rb
           if git diff --cached --quiet; then
-            echo "Shelf is already up to date"
+            echo "FolderLens is already up to date"
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'chore(shelf): update cask from published release'
+          git commit -m 'chore(folderlens): update cask from published release'
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
