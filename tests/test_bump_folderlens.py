@@ -29,7 +29,7 @@ cask "folderlens" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: :sonoma
+  depends_on macos: ">= :sonoma"
 
   app "Shelf.app"
 end
@@ -97,6 +97,7 @@ pathlib.Path(args[-1]).write_bytes((root / "payload").read_bytes())
         self.assertIn(f'sha256 "{DIGEST}"', text)
         self.assertIn("/FolderLens-#{version}-macos-arm64.dmg", text)
         self.assertIn('app "FolderLens.app"', text)
+        self.assertIn('depends_on macos: ">= :sonoma"', text)
         (self.root / "fetched").unlink()
         self.assertEqual(self.run_bump(release).returncode, 0)
         self.assertEqual(self.cask.read_text(), text)
