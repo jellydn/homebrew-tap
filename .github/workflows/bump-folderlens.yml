@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: main
+      - name: Test legacy and renamed release handling
+        run: python3 -m unittest discover -s tests -v
       - name: Update from published release and verify downloaded digest
         env:
           GH_TOKEN: ${{ github.token }}
