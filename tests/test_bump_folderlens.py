@@ -29,7 +29,7 @@ cask "folderlens" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Shelf.app"
 end
@@ -88,6 +88,12 @@ pathlib.Path(args[-1]).write_bytes((root / "payload").read_bytes())
         self.assertEqual(self.cask.read_text(), self.original)
         self.assertTrue((self.root / "fetched").exists())
 
+    def test_same_release_repairs_deprecated_macos_declaration(self):
+        self.cask.write_text(self.original.replace('macos: :sonoma', 'macos: ">= :sonoma"'))
+        result = self.run_bump(self.release("0.2.0", "Shelf"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.cask.read_text(), self.original)
+
     def test_future_release_uses_folderlens_names_and_is_repeatable(self):
         release = self.release("0.2.1", "FolderLens")
         result = self.run_bump(release)
@@ -97,7 +103,7 @@ pathlib.Path(args[-1]).write_bytes((root / "payload").read_bytes())
         self.assertIn(f'sha256 "{DIGEST}"', text)
         self.assertIn("/FolderLens-#{version}-macos-arm64.dmg", text)
         self.assertIn('app "FolderLens.app"', text)
-        self.assertIn('depends_on macos: ">= :sonoma"', text)
+        self.assertIn('depends_on macos: :sonoma', text)
         (self.root / "fetched").unlink()
         self.assertEqual(self.run_bump(release).returncode, 0)
         self.assertEqual(self.cask.read_text(), text)

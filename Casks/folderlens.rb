@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "folderlens" do
-  version "0.3.3"
-  sha256 "42ede1168f24fdf410bd6d6c921607f94d7540c1089e6296eb7b5fa1ee7167f1"
+  version "0.3.4"
+  sha256 "80d6b4eda63380b223e7c2ed9c18b6062fc7c4371dbab21ae14f4e6930956013"
 
   url "https://github.com/jellydn/folderlens/releases/download/v#{version}/FolderLens-#{version}-macos-arm64.dmg"
   name "FolderLens"
@@ -15,7 +15,7 @@ cask "folderlens" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "FolderLens.app"
 end
