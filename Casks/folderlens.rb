@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "folderlens" do
-  version "0.4.0"
-  sha256 "bee0088e778ba82e01d00f4c9f1211cf3a32968ec8b58b67ccc6b3fbb4789f57"
+  version "0.5.0"
+  sha256 "229684720cd36c22911436b4480795823251f7c5168f4320210a216ec77f8394"
 
   url "https://github.com/jellydn/folderlens/releases/download/v#{version}/FolderLens-#{version}-macos-arm64.dmg"
   name "FolderLens"
