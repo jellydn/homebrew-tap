@@ -20,7 +20,7 @@ cask "folderlens" do
 
   url "https://github.com/jellydn/folderlens/releases/download/v#{{version}}/Shelf-#{{version}}-macos-arm64.dmg"
   name "FolderLens"
-  desc "Menu-bar cleanup review that never deletes files"
+  desc "Menu-bar cleanup review that moves files to the Trash only after confirmation"
   homepage "https://github.com/jellydn/folderlens"
 
   livecheck do
