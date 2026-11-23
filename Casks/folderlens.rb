@@ -6,7 +6,7 @@ cask "folderlens" do
 
   url "https://github.com/jellydn/folderlens/releases/download/v#{version}/FolderLens-#{version}-macos-arm64.dmg"
   name "FolderLens"
-  desc "Menu-bar cleanup review that moves files to the Trash only after confirmation"
+  desc "Menu-bar cleanup review that moves items to the Trash only after you confirm"
   homepage "https://github.com/jellydn/folderlens"
 
   livecheck do
