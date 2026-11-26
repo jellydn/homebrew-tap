@@ -93,6 +93,7 @@ pathlib.Path(args[-1]).write_bytes((root / "payload").read_bytes())
         result = self.run_bump(self.release("0.2.0", "Shelf"))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.cask.read_text(), self.original)
+        self.assertTrue((self.root / "fetched").exists())
 
     def test_future_release_uses_folderlens_names_and_is_repeatable(self):
         release = self.release("0.2.1", "FolderLens")
